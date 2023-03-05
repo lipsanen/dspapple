@@ -2,7 +2,7 @@
 #include <cmath>
 #include <string.h>
 
-void dsp_apple::fm_mod(float* input, std::complex<float>* output, size_t samples, int k, float* carry)
+void dspapple::fm_mod(float* input, std::complex<float>* output, size_t samples, int k, float* carry)
 {
     float sum = *carry;
 
@@ -17,7 +17,7 @@ void dsp_apple::fm_mod(float* input, std::complex<float>* output, size_t samples
     *carry = std::fmod<float>(sum, 2 * M_PI);
 }
 
-void dsp_apple::fm_demod(std::complex<float>* input, float* output, size_t samples, int k)
+void dspapple::fm_demod(std::complex<float>* input, float* output, size_t samples, int k)
 {
     const float samp_rate = 1.0f; // this is some relative sample rate
     float T = 1 / samp_rate;

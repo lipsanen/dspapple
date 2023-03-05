@@ -3,7 +3,7 @@
 #include <complex>
 #include <stddef.h>
 
-namespace dsp_apple
+namespace dspapple
 {
     // Modulate signal into an FM baseband signal
     void fm_mod(float* input, std::complex<float>* output, size_t samples, int k, float* carry);

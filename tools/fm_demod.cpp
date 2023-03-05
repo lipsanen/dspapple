@@ -25,7 +25,7 @@ int main(int argc, char** argv)
 
     while(dspapple::read_from_file(stdin, input+1, OUTPUT_SIZE * sizeof(std::complex<float>)) != 0)
     {
-        dsp_apple::fm_demod(input, output, OUTPUT_SIZE+1, 1);
+        dspapple::fm_demod(input, output, OUTPUT_SIZE+1, 1);
 
         for(size_t i=0; i < OUTPUT_SIZE; ++i)
         {

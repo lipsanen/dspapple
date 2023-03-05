@@ -14,11 +14,11 @@ TEST_CASE("fmdemod_test")
         input[i] = std::sin(i / (M_PI * 4));
     }
 
-    dsp_apple::fm_mod(input, samples, ARRAY_SIZE, 1, &carry);
+    dspapple::fm_mod(input, samples, ARRAY_SIZE, 1, &carry);
     float output[ARRAY_SIZE+1];
     
-    dsp_apple::fm_demod(samples, output, 513, 1);
-    dsp_apple::fm_demod(samples+512, output+512, 513, 1);
+    dspapple::fm_demod(samples, output, 513, 1);
+    dspapple::fm_demod(samples+512, output+512, 513, 1);
 
     for(size_t i=0; i < ARRAY_SIZE-1; ++i)
     {
