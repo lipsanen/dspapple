@@ -23,7 +23,8 @@ void dspapple::fm_mod(float* input, std::complex<float>* output, size_t samples,
     float_vec coss;
     size_t i=0;
 
-    for(; i < samples - 8; i += 8)
+    // samples >= 8 in case the subtraction underflows
+    for(; i < samples - 8 && samples >= 8; i += 8)
     {
         for(size_t u=0; u < 8; ++u)
         {

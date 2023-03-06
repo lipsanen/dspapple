@@ -25,3 +25,26 @@ TEST_CASE("fmdemod_test")
         REQUIRE(std::abs(input[i] - output[i]) < 1e-5);
     }
 }
+
+TEST_CASE("fmdemod_test underflow")
+{
+    const size_t ARRAY_SIZE = 6;
+    float input[ARRAY_SIZE+1];
+    std::complex<float> samples[ARRAY_SIZE+1];
+    float carry = 0;
+    for(size_t i=0; i < ARRAY_SIZE+1; ++i)
+    {
+        input[i] = std::sin(i / (M_PI * 4));
+    }
+
+    dspapple::fm_mod(input, samples, ARRAY_SIZE, 1, &carry);
+    float output[ARRAY_SIZE+1];
+    
+    dspapple::fm_demod(samples, output, ARRAY_SIZE+1, 1);
+
+    for(size_t i=0; i < ARRAY_SIZE-1; ++i)
+    {
+        REQUIRE(std::abs(input[i] - output[i]) < 1e-5);
+    }
+}
+
