@@ -12,6 +12,7 @@ static void BM_DemodFM(benchmark::State& state) {
   }
 
   state.SetItemsProcessed(1024 * state.iterations());
+  state.SetBytesProcessed(1024 * state.iterations() * sizeof(std::complex<float>));
 }
 
 static void BM_ModFM(benchmark::State& state) {
@@ -25,6 +26,7 @@ static void BM_ModFM(benchmark::State& state) {
   }
 
   state.SetItemsProcessed(1024 * state.iterations());
+  state.SetBytesProcessed(1024 * state.iterations() * sizeof(std::complex<float>));
 }
 
 BENCHMARK(BM_DemodFM);

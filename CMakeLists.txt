@@ -11,6 +11,7 @@ set (CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -march=haswell -fno-omi
 
 list(APPEND APPLE_SOURCES
      src/fm.cpp
+     src/fir.cpp
      src/io.cpp
      src/resample.cpp
      )

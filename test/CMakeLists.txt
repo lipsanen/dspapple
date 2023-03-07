@@ -1,5 +1,6 @@
 list(APPEND DSPAPPLE_SOURCES
   "catch_amalgamated.cpp"
+  "fir.cpp"
   "fm_demod_test.cpp"
   "resample.cpp"
 )
