@@ -21,18 +21,20 @@ static void BM_FIR(benchmark::State& state) {
   }
   
   std::memset(samples, 0, sizeof(samples));
+  size_t samples_processed = 0;
   dspapple::error err;
 
   for(auto _ : state) {
-    filter.decimate(&fir_state, 4, err);
+    filter.decimate(&fir_state, DECIMATION, err);
+    samples_processed += ARRAY_SIZE - fir_state.input_offset;
     if(err.m_bError)
     {
       abort();
     }
   }
 
-  state.SetItemsProcessed(ARRAY_SIZE * state.iterations());
-  state.SetBytesProcessed(ARRAY_SIZE * state.iterations() * sizeof(std::complex<float>));
+  state.SetItemsProcessed(samples_processed);
+  state.SetBytesProcessed(samples_processed * sizeof(std::complex<float>));
 }
 
 BENCHMARK(BM_FIR);
