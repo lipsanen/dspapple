@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <complex>
+#include "dspapple/utils.hpp"
 
 namespace dspapple
 {
@@ -25,11 +26,11 @@ namespace dspapple
 
     struct fir_filter
     {
-        float* array = nullptr;
+        float* array = nullptr; // The filter weights are inverted for performance
         uint32_t tap_count = 0;
 
         ~fir_filter();
         void init(std::uint32_t taps);
-        void decimate(fir_state* state, std::uint32_t decimation);
+        void decimate(fir_state* state, std::uint32_t decimation, error& err);
     };
 }

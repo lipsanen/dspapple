@@ -16,6 +16,6 @@ namespace dspapple
         FloatResampler() = default;
         ~FloatResampler();
         void Resample(float* input);
-        void Init(std::size_t minOutputSize, std::uint16_t decimation, std::uint16_t interpolation, Error& err);
+        void Init(std::size_t minOutputSize, std::uint16_t decimation, std::uint16_t interpolation, error& err);
     };
 }

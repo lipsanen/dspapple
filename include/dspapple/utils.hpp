@@ -4,7 +4,7 @@
 
 namespace dspapple
 {
-    struct Error
+    struct error
     {
         std::string m_sErrorMessage;
         bool m_bError = false;

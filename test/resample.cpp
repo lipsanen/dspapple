@@ -5,7 +5,7 @@
 TEST_CASE("resample arrays")
 {
     dspapple::FloatResampler sampler;
-    dspapple::Error err;
+    dspapple::error err;
     sampler.Init(1024, 2, 1, err);
     REQUIRE(sampler.m_uDecimation == 2);
     REQUIRE(sampler.m_uInterpolation == 1);
@@ -23,7 +23,7 @@ TEST_CASE("resample arrays")
 TEST_CASE("basic resampling")
 {
     dspapple::FloatResampler sampler;
-    dspapple::Error err;
+    dspapple::error err;
     sampler.Init(3 * sizeof(float), 2, 1, err);
     REQUIRE(sampler.m_uDecimation == 2);
     REQUIRE(sampler.m_uInterpolation == 1);

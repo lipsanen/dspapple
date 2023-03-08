@@ -3,6 +3,7 @@
 
 TEST_CASE("FIR averaging")
 {
+    dspapple::error err;
     {
         float input[] = {0, 0, 1, 1};
         float output[] = {0, 0};
@@ -12,7 +13,8 @@ TEST_CASE("FIR averaging")
         dspapple::fir_filter filter;
         filter.init(3);
         filter.array[0] = filter.array[1] = filter.array[2] = 1.0f;
-        filter.decimate(&state, 1);
+        filter.decimate(&state, 1, err);
+        REQUIRE(err.m_bError == false);
         REQUIRE(output[0] == 1.0f);
         REQUIRE(output[1] == 2.0f);
         REQUIRE(state.input_offset == 2);
@@ -27,7 +29,8 @@ TEST_CASE("FIR averaging")
         dspapple::fir_filter filter;
         filter.init(3);
         filter.array[0] = filter.array[1] = filter.array[2] = 1.0f;
-        filter.decimate(&state, 1);
+        filter.decimate(&state, 1, err);
+        REQUIRE(err.m_bError == false);
         REQUIRE(output[0] == std::complex<float>{1.0f, 2.0f});
         REQUIRE(output[1] == std::complex<float>{4.0f, 6.0f});
         REQUIRE(state.input_offset == 2);
@@ -37,6 +40,7 @@ TEST_CASE("FIR averaging")
 
 TEST_CASE("FIR decimate")
 {
+    dspapple::error err;
     {
         float input[] = {0, 0, 1};
         float output[] = {0};
@@ -46,7 +50,8 @@ TEST_CASE("FIR decimate")
         dspapple::fir_filter filter;
         filter.init(3);
         filter.array[0] = filter.array[1] = filter.array[2] = 1.0f;
-        filter.decimate(&state, 2);
+        filter.decimate(&state, 2, err);
+        REQUIRE(err.m_bError == false);
         REQUIRE(output[0] == 1.0f);
         REQUIRE(state.input_offset == 1);
         REQUIRE(input[0] == 1.0f);
@@ -61,7 +66,8 @@ TEST_CASE("FIR decimate")
         dspapple::fir_filter filter;
         filter.init(3);
         filter.array[0] = filter.array[1] = filter.array[2] = 1.0f;
-        filter.decimate(&state, 2);
+        filter.decimate(&state, 2, err);
+        REQUIRE(err.m_bError == false);
         REQUIRE(output[0] == std::complex<float> {1.0f, 1.0f});
         REQUIRE(state.input_offset == 1);
         REQUIRE(input[0].real() == 1.0f);
@@ -77,7 +83,8 @@ TEST_CASE("FIR decimate")
         dspapple::fir_filter filter;
         filter.init(3);
         filter.array[0] = filter.array[1] = filter.array[2] = 1.0f;
-        filter.decimate(&state, 2);
+        filter.decimate(&state, 2, err);
+        REQUIRE(err.m_bError == false);
         REQUIRE(output[0] == 1.0f);
         REQUIRE(state.input_offset == 2);
         REQUIRE(input[0] == 1.0f);

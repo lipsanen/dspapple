@@ -1,2 +1,2 @@
-add_executable(bench "demod_bench.cpp")
+add_executable(bench "demod_bench.cpp" "fir_bench.cpp")
 target_link_libraries(bench PUBLIC DSPApple benchmark)

@@ -3,7 +3,7 @@
 
 using namespace dspapple;
 
-void FloatResampler::Init(std::size_t minOutputSize, std::uint16_t decimation, std::uint16_t interpolation, Error& err)
+void FloatResampler::Init(std::size_t minOutputSize, std::uint16_t decimation, std::uint16_t interpolation, error& err)
 {
     if(m_pBuffer != nullptr)
     {

@@ -24,7 +24,7 @@ int main(int argc, char** argv)
     int decimation = std::atoi(argv[1]);
 
     dspapple::FloatResampler sampler;
-    dspapple::Error err;
+    dspapple::error err;
     constexpr size_t MIN_OUTPUT_SIZE = 512;
     sampler.Init(MIN_OUTPUT_SIZE, decimation, 1, err);
     void* input = malloc(sampler.m_uInputBytes);

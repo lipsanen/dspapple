@@ -1,7 +1,20 @@
 #include "dspapple/fir.hpp"
 #include <string.h>
 
+#ifdef __AVX2__
+#define SSE
+#define AVX
+#include "simd_utils/simd_utils.h"
+#endif
+
 using namespace dspapple;
+
+struct float_vec {
+    union {
+        alignas(64) v8sf vec;
+        alignas(64) float values[8];
+    };
+};
 
 fir_filter::~fir_filter()
 {
@@ -10,7 +23,6 @@ fir_filter::~fir_filter()
         free(this->array);
     }
 }
-
 
 void fir_state::init(std::complex<float>* input, std::uint32_t input_samples, std::complex<float>* output, std::uint32_t output_samples)
 {
@@ -46,10 +58,22 @@ std::uint32_t fir_state::bytes_wanted()
         return (input_samples - input_offset) * 8;
 }
 
+static size_t find_aligned_size(size_t size, size_t alignment)
+{
+    if((size % alignment) != 0)
+    {
+        return (size / alignment + 1) * alignment;
+    }
+    else
+    {
+        return size;
+    }
+}
+
 void fir_filter::init(std::uint32_t taps)
 {
     this->tap_count = taps;
-    this->array = (float*)malloc(taps * sizeof(float));
+    this->array = (float*)aligned_alloc(64, find_aligned_size(taps * sizeof(float), 64));
 }
 
 static void decimate_complex(const fir_filter* filter, fir_state* state, std::uint32_t decimation)
@@ -64,7 +88,7 @@ static void decimate_complex(const fir_filter* filter, fir_state* state, std::ui
 
         for(size_t u=0; u < filter->tap_count; ++u)
         {
-            output[i] += input[input_index - u] * filter->array[u];
+            output[i] += input[input_index - filter->tap_count + 1 + u] * filter->array[u];
         }
     }
 
@@ -85,11 +109,11 @@ static void decimate_real(const fir_filter* filter, fir_state* state, std::uint3
     for(size_t i=0; i < state->output_samples; ++i)
     {
         output[i] = 0.0f;
-        size_t input_index = filter->tap_count - 1 + i * decimation;
+        size_t input_index = i * decimation;
 
         for(size_t u=0; u < filter->tap_count; ++u)
         {
-            output[i] += input[input_index - u] * filter->array[u];
+            output[i] += input[input_index + u] * filter->array[u];
         }
     }
 
@@ -102,8 +126,17 @@ static void decimate_real(const fir_filter* filter, fir_state* state, std::uint3
     memmove(input, input + copy_start_offset, (state->input_offset) * sizeof(float));
 }
 
-void fir_filter::decimate(fir_state* state, std::uint32_t decimation)
+void fir_filter::decimate(fir_state* state, std::uint32_t decimation, error& err)
 {   
+    size_t requested_size = (state->output_samples - 1) * decimation + this->tap_count;
+
+    if(requested_size > state->input_samples)
+    {
+        err.m_bError = true;
+        err.m_sErrorMessage = "Cannot decimate, too many output samples requested for this input size and decimation";
+        return;
+    }
+
     if(state->data_type == data_type_t::float32)
     {
         decimate_real(this, state, decimation);
