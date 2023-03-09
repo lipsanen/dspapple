@@ -1,8 +1,10 @@
-#include "catch_amalgamated.hpp"
+#include <gtest/gtest.h>
 #include "dspapple/resample.hpp"
 #include <cmath>
 
-TEST_CASE("resample arrays")
+#define REQUIRE EXPECT_TRUE
+
+TEST(Resample, arrays)
 {
     dspapple::FloatResampler sampler;
     dspapple::error err;
@@ -20,7 +22,7 @@ TEST_CASE("resample arrays")
     REQUIRE(sampler2.m_uOutputBytes == 1024);
 }
 
-TEST_CASE("basic resampling")
+TEST(Resample, basic)
 {
     dspapple::FloatResampler sampler;
     dspapple::error err;

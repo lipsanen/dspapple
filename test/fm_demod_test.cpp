@@ -1,8 +1,10 @@
-#include "catch_amalgamated.hpp"
+#include <gtest/gtest.h>
 #include "dspapple/fm.hpp"
 #include <cmath>
 
-TEST_CASE("fmdemod_test")
+#define REQUIRE EXPECT_TRUE
+
+TEST(FMDemod, Test)
 {
     const size_t ARRAY_SIZE = 1024;
 
@@ -26,7 +28,7 @@ TEST_CASE("fmdemod_test")
     }
 }
 
-TEST_CASE("fmdemod_test underflow")
+TEST(FMDemod, UnderflowTest)
 {
     const size_t ARRAY_SIZE = 6;
     float input[ARRAY_SIZE+1];

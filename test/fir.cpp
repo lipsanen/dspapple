@@ -1,7 +1,7 @@
-#include "catch_amalgamated.hpp"
+#include "gtest/gtest.h"
 #include "dspapple/fir.hpp"
 
-TEST_CASE("FIR averaging")
+TEST(FIR, Averaging)
 {
     dspapple::error err;
     {
@@ -14,10 +14,10 @@ TEST_CASE("FIR averaging")
         filter.init(3);
         filter.array[0] = filter.array[1] = filter.array[2] = 1.0f;
         filter.decimate(&state, 1, err);
-        REQUIRE(err.m_bError == false);
-        REQUIRE(output[0] == 1.0f);
-        REQUIRE(output[1] == 2.0f);
-        REQUIRE(state.input_offset == 2);
+        EXPECT_TRUE(err.m_bError == false);
+        EXPECT_TRUE(output[0] == 1.0f);
+        EXPECT_TRUE(output[1] == 2.0f);
+        EXPECT_TRUE(state.input_offset == 2);
     }
 
     {
@@ -30,15 +30,15 @@ TEST_CASE("FIR averaging")
         filter.init(3);
         filter.array[0] = filter.array[1] = filter.array[2] = 1.0f;
         filter.decimate(&state, 1, err);
-        REQUIRE(err.m_bError == false);
-        REQUIRE(output[0] == std::complex<float>{1.0f, 2.0f});
-        REQUIRE(output[1] == std::complex<float>{4.0f, 6.0f});
-        REQUIRE(state.input_offset == 2);
+        EXPECT_TRUE(err.m_bError == false);
+        EXPECT_TRUE(output[0] == std::complex<float>(1.0f, 2.0f));
+        EXPECT_TRUE(output[1] == std::complex<float>(4.0f, 6.0f));
+        EXPECT_TRUE(state.input_offset == 2);
     }
 
 }
 
-TEST_CASE("FIR decimate")
+TEST(FIR, Decimate)
 {
     dspapple::error err;
     {
@@ -51,10 +51,10 @@ TEST_CASE("FIR decimate")
         filter.init(3);
         filter.array[0] = filter.array[1] = filter.array[2] = 1.0f;
         filter.decimate(&state, 2, err);
-        REQUIRE(err.m_bError == false);
-        REQUIRE(output[0] == 1.0f);
-        REQUIRE(state.input_offset == 1);
-        REQUIRE(input[0] == 1.0f);
+        EXPECT_TRUE(err.m_bError == false);
+        EXPECT_TRUE(output[0] == 1.0f);
+        EXPECT_TRUE(state.input_offset == 1);
+        EXPECT_TRUE(input[0] == 1.0f);
     }
 
     {
@@ -67,11 +67,11 @@ TEST_CASE("FIR decimate")
         filter.init(3);
         filter.array[0] = filter.array[1] = filter.array[2] = 1.0f;
         filter.decimate(&state, 2, err);
-        REQUIRE(err.m_bError == false);
-        REQUIRE(output[0] == std::complex<float> {1.0f, 1.0f});
-        REQUIRE(state.input_offset == 1);
-        REQUIRE(input[0].real() == 1.0f);
-        REQUIRE(input[0].real() == 1.0f);
+        EXPECT_TRUE(err.m_bError == false);
+        EXPECT_TRUE(output[0] == std::complex<float> (1.0f, 1.0f));
+        EXPECT_TRUE(state.input_offset == 1);
+        EXPECT_TRUE(input[0].real() == 1.0f);
+        EXPECT_TRUE(input[0].real() == 1.0f);
     }
 
     {
@@ -84,10 +84,10 @@ TEST_CASE("FIR decimate")
         filter.init(3);
         filter.array[0] = filter.array[1] = filter.array[2] = 1.0f;
         filter.decimate(&state, 2, err);
-        REQUIRE(err.m_bError == false);
-        REQUIRE(output[0] == 1.0f);
-        REQUIRE(state.input_offset == 2);
-        REQUIRE(input[0] == 1.0f);
-        REQUIRE(input[1] == 1.0f);
+        EXPECT_TRUE(err.m_bError == false);
+        EXPECT_TRUE(output[0] == 1.0f);
+        EXPECT_TRUE(state.input_offset == 2);
+        EXPECT_TRUE(input[0] == 1.0f);
+        EXPECT_TRUE(input[1] == 1.0f);
     }
 }
