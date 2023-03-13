@@ -61,3 +61,34 @@ TEST(FIR, Decimate)
         EXPECT_TRUE(input[1] == 1.0f);
     }
 }
+
+TEST(FIR, Convolution)
+{
+    float arr[] = {0.02455383, 0.23438946, 0.4821134 , 0.23438946, 0.02455383};
+    dspapple::fir_buffer input_buf;
+    dspapple::fir_buffer output_buf;
+    input_buf.init(32, 5, dspapple::data_type_t::float32);
+    output_buf.init(32, 0, dspapple::data_type_t::float32);
+    dspapple::fir_filter filter;
+    filter.init(5);
+    memcpy(filter.array, arr, sizeof(arr));
+
+    float* input = (float*)input_buf.get_input_dest();
+
+    for(size_t i=0; i < 32; ++i)
+    {
+        input[i] = i;
+    }
+
+    filter.decimate(&input_buf, &output_buf, 1);
+
+    float* output = (float*)output_buf.get_input_dest();
+
+    ASSERT_NEAR(output[0], 0, 1e-4);
+    ASSERT_NEAR(output[1], 0.024554, 1e-4);
+    ASSERT_NEAR(output[2], 0.283497, 1e-4);
+    ASSERT_NEAR(output[3], 1.024554, 1e-4);
+    ASSERT_NEAR(output[4], 2, 1e-4);
+    ASSERT_NEAR(output[10], 8, 1e-4);
+    ASSERT_NEAR(output[20], 18, 1e-4);
+}
