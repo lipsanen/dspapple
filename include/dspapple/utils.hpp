@@ -6,6 +6,8 @@
 
 namespace dspapple
 {
+    enum class error_code { success = 0, fir_input_output_mismatch, fir_input_window_size_doesnt_match_filter };
+
     struct error
     {
         std::string m_sErrorMessage;

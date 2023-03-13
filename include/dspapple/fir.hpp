@@ -8,20 +8,22 @@ namespace dspapple
 {
     enum class data_type_t { float32, complex32 };
 
-    struct fir_state
+    struct fir_buffer
     {
-        std::size_t input_offset = 0;
-        std::uint32_t input_samples = 0;
-        std::uint32_t output_samples = 0;
-        data_type_t data_type = data_type_t::float32;
-        void* input = nullptr;
-        void* output = nullptr;
+        void* m_pBuffer = nullptr;
+        bool m_bAllocated = false;
+        data_type_t m_eDatatype = data_type_t::float32;
+        std::uint32_t m_uSamples = 0;
+        std::uint32_t m_uBufferSize = 0; // how many samples total in the buffer
 
-        // can init with complex or float data
-        void init(std::complex<float>* input, std::uint32_t input_samples, std::complex<float>* output, std::uint32_t output_samples);
-        void init(float* input, std::uint32_t input_samples, float* output, std::uint32_t output_samples);
-        void* get_input_dest(); // get pointer where we want to memcpy new inputs
-        std::uint32_t bytes_wanted(); // how many bytes do we want on this iteration
+        void init(std::uint32_t samples, std::uint32_t window_size, data_type_t data_type);
+        void init_ptr(float* input, std::uint32_t array_size, std::uint32_t window_size);
+        void init_ptr(std::complex<float>* input, std::uint32_t array_size, std::uint32_t window_size);
+        void deallocate();
+        void* get_input_dest();
+        ~fir_buffer();
+        std::size_t get_input_bytes();
+        std::size_t get_window_size();
     };
 
     struct fir_filter
@@ -31,6 +33,6 @@ namespace dspapple
 
         ~fir_filter();
         void init(std::uint32_t taps);
-        void decimate(fir_state* state, std::uint32_t decimation, error& err);
+        error_code decimate(fir_buffer* input, fir_buffer* output, std::uint32_t decimation);
     };
 }

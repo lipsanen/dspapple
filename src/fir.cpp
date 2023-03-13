@@ -16,46 +16,100 @@ struct float_vec {
     };
 };
 
-fir_filter::~fir_filter()
+fir_buffer::~fir_buffer()
 {
-    if(this->array)
+    deallocate();
+}
+
+void fir_buffer::init(std::uint32_t samples, std::uint32_t window_size, data_type_t data_type)
+{
+    if(window_size <= 0)
     {
-        free(this->array);
+        m_uBufferSize = samples;
+    }
+    else
+    {
+        m_uBufferSize = samples + window_size - 1;
+    }
+
+    m_eDatatype = data_type;
+    size_t sample_size = (m_eDatatype == data_type_t::float32) ? 4 : 8;
+    m_pBuffer = malloc(sample_size * m_uBufferSize);
+    m_bAllocated = true;
+    m_uSamples = samples;
+}
+
+void fir_buffer::init_ptr(float* input, std::uint32_t array_size, std::uint32_t window_size)
+{
+    m_eDatatype = data_type_t::float32;
+    m_pBuffer = input;
+    m_uBufferSize = array_size;
+    m_bAllocated = false;
+    if(window_size > 1)
+    {
+        m_uSamples = array_size - window_size + 1;
+    }
+    else
+    {
+        m_uSamples = array_size;
     }
 }
 
-void fir_state::init(std::complex<float>* input, std::uint32_t input_samples, std::complex<float>* output, std::uint32_t output_samples)
+void fir_buffer::init_ptr(std::complex<float>* input, std::uint32_t array_size, std::uint32_t window_size)
 {
-    this->data_type = data_type_t::complex32;
-    this->input = input;
-    this->input_samples = input_samples;
-    this->output = output;
-    this->output_samples = output_samples;
-}
-
-void fir_state::init(float* input, std::uint32_t input_samples, float* output, std::uint32_t output_samples)
-{
-    this->data_type = data_type_t::float32;
-    this->input = input;
-    this->input_samples = input_samples;
-    this->output = output;
-    this->output_samples = output_samples;
-}
-
-void* fir_state::get_input_dest()
-{
-    if(data_type == data_type_t::float32)
-        return ((float*)input) + input_offset;
+    m_eDatatype = data_type_t::complex32;
+    m_pBuffer = input;
+    m_uBufferSize = array_size;
+    m_bAllocated = false;
+    if(window_size > 1)
+    {
+        m_uSamples = array_size - window_size + 1;
+    }
     else
-        return ((std::complex<float>*)input) + input_offset;
+    {
+        m_uSamples = array_size;
+    }
 }
 
-std::uint32_t fir_state::bytes_wanted()
+void fir_buffer::deallocate()
 {
-    if(data_type == data_type_t::float32)
-        return (input_samples - input_offset) * 4;
+    if(m_bAllocated)
+    {
+        free(m_pBuffer);
+        m_pBuffer = nullptr;
+        m_bAllocated = false;
+    }
+}
+
+void* fir_buffer::get_input_dest()
+{
+    if(m_eDatatype == data_type_t::float32)
+    {
+        float* out = (float*)m_pBuffer;
+        return out + (m_uBufferSize - m_uSamples);
+    }
     else
-        return (input_samples - input_offset) * 8;
+    {
+        std::complex<float>* out = (std::complex<float>*)m_pBuffer;
+        return out + (m_uBufferSize - m_uSamples);
+    }
+}
+
+std::size_t fir_buffer::get_input_bytes()
+{
+    if(m_eDatatype == data_type_t::float32)
+    {
+        return m_uSamples * 4;
+    }
+    else
+    {
+        return m_uSamples * 8;
+    }
+}
+
+std::size_t fir_buffer::get_window_size()
+{
+    return (m_uBufferSize - m_uSamples) + 1;
 }
 
 static size_t find_aligned_size(size_t size, size_t alignment)
@@ -76,73 +130,61 @@ void fir_filter::init(std::uint32_t taps)
     this->array = (float*)aligned_alloc(64, find_aligned_size(taps * sizeof(float), 64));
 }
 
-static void decimate_complex(const fir_filter* filter, fir_state* state, std::uint32_t decimation)
+template<typename T>
+static void _decimate(const fir_filter* filter, fir_buffer* input, fir_buffer* output, std::uint32_t decimation)
 {
-    std::complex<float>* input = (std::complex<float>*)state->input;
-    std::complex<float>* output = (std::complex<float>*)state->output;
+    auto* input_buffer = (T*)input->get_input_dest();
+    auto* output_buffer = (T*)output->get_input_dest();
 
-    for(size_t i=0; i < state->output_samples; ++i)
+    for(size_t i=0; i < output->m_uSamples; ++i)
     {
-        output[i] = 0.0f;
-        size_t input_index = filter->tap_count - 1 + i * decimation;
-
-        for(size_t u=0; u < filter->tap_count; ++u)
-        {
-            output[i] += input[input_index - filter->tap_count + 1 + u] * filter->array[u];
-        }
-    }
-
-    size_t target_input_index = filter->tap_count - 1 + state->output_samples * decimation;
-    size_t last_index = state->input_samples - 1;
-    size_t diffy = target_input_index - last_index - 1;
-
-    state->input_offset = filter->tap_count - 1 - diffy;
-    size_t copy_start_offset = state->input_samples - state->input_offset;
-    memmove(input, input + copy_start_offset, (state->input_offset) * sizeof(std::complex<float>));
-}
-
-static void decimate_real(const fir_filter* filter, fir_state* state, std::uint32_t decimation)
-{
-    float* input = (float*)state->input;
-    float* output = (float*)state->output;
-
-    for(size_t i=0; i < state->output_samples; ++i)
-    {
-        output[i] = 0.0f;
+        output_buffer[i] = 0.0f;
         size_t input_index = i * decimation;
 
         for(size_t u=0; u < filter->tap_count; ++u)
         {
-            output[i] += input[input_index + u] * filter->array[u];
+            output_buffer[i] += input_buffer[input_index - filter->tap_count + 1 + u] * filter->array[u];
         }
     }
 
-    size_t target_input_index = filter->tap_count - 1 + state->output_samples * decimation;
-    size_t last_index = state->input_samples - 1;
-    size_t diffy = target_input_index - last_index - 1;
-
-    state->input_offset = filter->tap_count - 1 - diffy;
-    size_t copy_start_offset = state->input_samples - state->input_offset;
-    memmove(input, input + copy_start_offset, (state->input_offset) * sizeof(float));
+    size_t copy_start_offset = input->m_uBufferSize - filter->tap_count;
+    memmove(input->m_pBuffer, ((T*)input->m_pBuffer) + copy_start_offset, (filter->tap_count) * sizeof(T));
 }
 
-void fir_filter::decimate(fir_state* state, std::uint32_t decimation, error& err)
+error_code fir_filter::decimate(fir_buffer* input, fir_buffer* output, std::uint32_t decimation)
 {   
-    size_t requested_size = (state->output_samples - 1) * decimation + this->tap_count;
-
-    if(requested_size > state->input_samples)
+    if(((double)input->m_uSamples / decimation) != output->m_uSamples)
     {
-        err.m_bError = true;
-        err.m_sErrorMessage = "Cannot decimate, too many output samples requested for this input size and decimation";
-        return;
+        return error_code::fir_input_output_mismatch;
     }
 
-    if(state->data_type == data_type_t::float32)
+    if(input->m_eDatatype != output->m_eDatatype)
     {
-        decimate_real(this, state, decimation);
+        return error_code::fir_input_output_mismatch;
+    }
+
+    if((double)input->get_window_size() != tap_count)
+    {
+        return error_code::fir_input_window_size_doesnt_match_filter;
+    }
+
+    if(input->m_eDatatype == data_type_t::float32)
+    {
+        _decimate<float>(this, input, output, decimation);
     }
     else
     {
-        decimate_complex(this, state, decimation);
+        _decimate<std::complex<float>>(this, input, output, decimation);
+    }
+
+    return error_code::success;
+}
+
+
+fir_filter::~fir_filter()
+{
+    if(this->array)
+    {
+        free(this->array);
     }
 }
