@@ -13,7 +13,7 @@ TEST(FIR, Averaging)
         output_buf.init_ptr(output_arr, 2, 0);
 
         dspapple::fir_filter filter;
-        filter.init(3);
+        filter.init(3, dspapple::window_type::none);
         filter.array[0] = filter.array[1] = filter.array[2] = 1.0f;
         auto result = filter.decimate(&input_buf, &output_buf, 1);
         EXPECT_EQ(result, dspapple::error_code::success);
@@ -30,7 +30,7 @@ TEST(FIR, Averaging)
         input_buf.init_ptr(input_arr, 4, 3);
         output_buf.init_ptr(output_arr, 2, 0);
         dspapple::fir_filter filter;
-        filter.init(3);
+        filter.init(3, dspapple::window_type::none);
         filter.array[0] = filter.array[1] = filter.array[2] = 1.0f;
         auto result = filter.decimate(&input_buf, &output_buf, 1);
         EXPECT_EQ(result, dspapple::error_code::success);
@@ -51,7 +51,7 @@ TEST(FIR, Decimate)
         input_buf.init_ptr(input, 6, 3);
         output_buf.init_ptr(output, 2, 0);
         dspapple::fir_filter filter;
-        filter.init(3);
+        filter.init(3, dspapple::window_type::none);
         filter.array[0] = filter.array[1] = filter.array[2] = 1.0f;
         auto result = filter.decimate(&input_buf, &output_buf, 2);
         EXPECT_EQ(result, dspapple::error_code::success);
@@ -70,7 +70,7 @@ TEST(FIR, Convolution)
     input_buf.init(32, 5, dspapple::data_type_t::float32);
     output_buf.init(32, 0, dspapple::data_type_t::float32);
     dspapple::fir_filter filter;
-    filter.init(5);
+    filter.init(5, dspapple::window_type::none);
     memcpy(filter.array, arr, sizeof(arr));
 
     float* input = (float*)input_buf.get_input_dest();

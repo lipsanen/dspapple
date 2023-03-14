@@ -1,4 +1,5 @@
 add_executable(audioplayer "audioplayer.cpp")
+add_executable(cosine_windows "cosine_windows.cpp")
 add_executable(fmdemod "fm_demod.cpp")
 add_executable(resampler "resampler.cpp")
 add_executable(wavegen "wavegen.cpp")

@@ -124,7 +124,8 @@ static size_t find_aligned_size(size_t size, size_t alignment)
     }
 }
 
-void fir_filter::init(std::uint32_t taps)
+
+void fir_filter::init(std::uint32_t taps, window_type window)
 {
     this->tap_count = taps;
     this->array = (float*)aligned_alloc(64, find_aligned_size(taps * sizeof(float), 64));

@@ -13,7 +13,7 @@ static void BM_FIR(benchmark::State& state) {
   dspapple::fir_filter filter;
   input.init(ARRAY_SIZE, WINDOW_SIZE, dspapple::data_type_t::complex32);
   output.init(OUTPUT_SIZE, 0, dspapple::data_type_t::complex32);
-  filter.init(WINDOW_SIZE);
+  filter.init(WINDOW_SIZE, dspapple::window_type::hamming);
 
   for(size_t i=0; i < WINDOW_SIZE; ++i)
   {

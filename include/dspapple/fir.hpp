@@ -26,13 +26,15 @@ namespace dspapple
         std::size_t get_window_size();
     };
 
+    enum class window_type { none, hamming };
+
     struct fir_filter
     {
         float* array = nullptr; // The filter weights are inverted for performance
         uint32_t tap_count = 0;
 
         ~fir_filter();
-        void init(std::uint32_t taps);
+        void init(std::uint32_t taps, window_type window);
         error_code decimate(fir_buffer* input, fir_buffer* output, std::uint32_t decimation);
     };
 }
