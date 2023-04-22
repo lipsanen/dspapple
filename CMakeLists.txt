@@ -17,6 +17,7 @@ set(CMAKE_C_STANDARD 90)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_EXPORT_COMPILE_COMMANDS True)
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=haswell")
 set (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -march=haswell")
 set (CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -march=haswell -fno-omit-frame-pointer -ffast-math")
 

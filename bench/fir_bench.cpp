@@ -6,7 +6,7 @@
 static void BM_FIR(benchmark::State& state) {
   constexpr size_t ARRAY_SIZE = 4096;
   constexpr size_t DECIMATION = 2;
-  constexpr size_t WINDOW_SIZE = 30;
+  constexpr size_t WINDOW_SIZE = 32;
   constexpr size_t OUTPUT_SIZE = ARRAY_SIZE / DECIMATION;
   dspapple::fir_buffer input;
   dspapple::fir_buffer output;

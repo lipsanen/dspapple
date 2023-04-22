@@ -1,5 +1,6 @@
 #include "dspapple/fir.hpp"
 #include <string.h>
+#include <cassert>
 
 #ifdef __AVX2__
 #define SSE
@@ -137,14 +138,33 @@ static void _decimate(const fir_filter* filter, fir_buffer* input, fir_buffer* o
     auto* input_buffer = (T*)input->get_input_dest();
     auto* output_buffer = (T*)output->get_input_dest();
 
-    for(size_t i=0; i < output->m_uSamples; ++i)
+    if(filter->tap_count % 4 == 0)
     {
-        output_buffer[i] = 0.0f;
-        size_t input_index = i * decimation;
-
-        for(size_t u=0; u < filter->tap_count; ++u)
+        for(size_t i=0; i < output->m_uSamples; ++i)
         {
-            output_buffer[i] += input_buffer[input_index - filter->tap_count + 1 + u] * filter->array[u];
+            output_buffer[i] = 0.0f;
+            size_t input_index = i * decimation;
+
+            for(size_t u=0; u < filter->tap_count; u += 4)
+            {
+                output_buffer[i] += input_buffer[input_index - filter->tap_count + 1 + u] * filter->array[u]
+                + input_buffer[input_index - filter->tap_count + 1 + u + 1] * filter->array[u+1]
+                + input_buffer[input_index - filter->tap_count + 1 + u + 2] * filter->array[u+2]
+                + input_buffer[input_index - filter->tap_count + 1 + u + 3] * filter->array[u+3];
+            }
+        }
+    }
+    else
+    {
+        for(size_t i=0; i < output->m_uSamples; ++i)
+        {
+            output_buffer[i] = 0.0f;
+            size_t input_index = i * decimation;
+
+            for(size_t u=0; u < filter->tap_count; ++u)
+            {
+                output_buffer[i] += input_buffer[input_index - filter->tap_count + 1 + u] * filter->array[u];
+            }
         }
     }
 
