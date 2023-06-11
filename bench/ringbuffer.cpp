@@ -8,7 +8,7 @@ static void BM_SPSC(benchmark::State& state)
     constexpr std::size_t SLOTS = 10;
     std::atomic<bool> ready(false);
     std::atomic<bool> stopped(false);
-    dspapple::RingBuffer<int, SLOTS> queue;
+    dspapple::RingBuffer<int> queue(SLOTS);
 
     std::thread pusher([&](){
         ready = true;

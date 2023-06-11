@@ -18,10 +18,18 @@ namespace dspapple
         alignas(kCacheLineSize) T value;
     };
 
-    template <typename T, unsigned int N>
+    template <typename T>
     struct RingBuffer
     {
-        RingBuffer() = default;
+        RingBuffer(std::size_t capacity) {
+            capacity_ = capacity + 1;
+            slots_ = new AlignedValue<int>[capacity_];
+        }
+
+        ~RingBuffer() {
+            delete[] slots_;
+        }
+
         // non-copyable and non-movable
         RingBuffer(const RingBuffer &) = delete;
         RingBuffer &operator=(const RingBuffer &) = delete;
@@ -30,7 +38,7 @@ namespace dspapple
         {
             auto const writeIdx = writeIdx_.load(std::memory_order_relaxed);
             auto nextWriteIdx = writeIdx + 1;
-            if (nextWriteIdx == N + 1)
+            if (nextWriteIdx == capacity_)
             {
                 nextWriteIdx = 0;
             }
@@ -66,14 +74,15 @@ namespace dspapple
         
             auto const readIdx = readIdx_.load(std::memory_order_relaxed);
             auto nextReadIdx = readIdx + 1;
-            if (nextReadIdx == N + 1)
+            if (nextReadIdx == capacity_)
             {
                 nextReadIdx = 0;
             }
             readIdx_.store(nextReadIdx, std::memory_order_release);
         }
 
-        AlignedValue<T> slots_[N+1];
+        std::size_t capacity_;
+        AlignedValue<T>* slots_;
 
         // Align to cache line size in order to avoid false sharing
         // readIdxCache_ and writeIdxCache_ is used to reduce the amount of cache
