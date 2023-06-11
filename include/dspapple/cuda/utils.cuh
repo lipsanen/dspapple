@@ -8,8 +8,8 @@ __global__ void VecConvert(int16_t* A, cufftComplex* out, int arrayCount)
     int i = blockIdx.x * blockDim.x + threadIdx.x;
     if(i < arrayCount)
     {
-        out[i/2].x = __uint2float_rn(A[i]);
-        out[i/2].y = __uint2float_rn(A[i + 1]);
+        out[i/2].x = __uint2float_rn(A[i]) / 32767.0f;
+        out[i/2].y = __uint2float_rn(A[i + 1]) / 32767.0f;
     }
 }
 

@@ -21,10 +21,12 @@ TEST(CUDA, Conversion)
     dspapple::ConvertVecGpu(input, output, SAMPLES);
     cudaDeviceSynchronize();
 
+    const float EPS = 1e-5;
+
     for(size_t i=0; i < SAMPLES; i += 2)
     {
-        EXPECT_EQ(output[i / 2].x, i);
-        EXPECT_EQ(output[i / 2].y, i + 1);
+        EXPECT_NEAR(output[i / 2].x, i / 32767.0f, EPS);
+        EXPECT_NEAR(output[i / 2].y, (i + 1) / 32767.0f, EPS);
     }
 
     cudaFree(input);
